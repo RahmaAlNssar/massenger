@@ -8,8 +8,11 @@
          </div>
 
          <div class="col">
+            @if(request()->conversation_id)
              <input type="hidden" name="conversation_id" value="">
+             @endif
              <input type="hidden" name="user_id" value="">
+
              <div class="input-group">
                  <textarea id="textarea"  name="message" class="form-control px-0" placeholder="Type your message..." rows="1" data-emoji-input="" data-autosize="true"></textarea>
 

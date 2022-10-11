@@ -12,14 +12,18 @@ class ConversationsController extends Controller
 {
     public function index(){
         $user = Auth::user();
-     return   $user->conversations()->with(['lastMessage','participients'=>function($builder) use($user){
+     $conversations =   $user->conversations()->with(['lastMessage','participients'=>function($builder) use($user){
         $builder->where('id','!=',$user->id);
+    },'messages'=>function($builder) use($user){
+        $builder->whereNull('read_at')->where('user_id','!=',$user->id);
     }])
+
     // ->withCount(['recipients as new_messages'=>function($bulider){
     //     $builder->where('recipients.user_id',$user->id)->whereNull('read_at');
 
     // }])
     ->paginate();
+    return ['conversations'=>$conversations];
     }
 
     public function show(Conversation $conversation){
@@ -40,5 +44,5 @@ class ConversationsController extends Controller
         $conversation->participients()->detach($request->user_id);
     }
 
-  
+
 }

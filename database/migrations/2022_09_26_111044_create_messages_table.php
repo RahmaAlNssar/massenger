@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('body');
             $table->enum('type',['text','attachement'])->default('text');
             $table->softDeletes();
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }

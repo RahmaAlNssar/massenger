@@ -102,7 +102,7 @@
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
                             <div class="badge badge-circle bg-primary">
-                                <span>4</span>
+                                <span id="tab-content-chats"></span>
                             </div>
                         </div>
                     </a>
@@ -192,10 +192,13 @@
                                 <!-- Search -->
                                 <div class="mb-6">
                                     <div class="mb-5">
-                                        <form action="#">
+                                        <form action="" method="get" >
+                                            @csrf
+                                            @method("get")
                                             <div class="input-group">
                                                 <div class="input-group-text">
                                                     <div class="icon icon-lg">
+                                                        <button type="submit">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                             height="24" viewBox="0 0 24 24" fill="none"
                                                             stroke="currentColor" stroke-width="2"
@@ -206,10 +209,11 @@
                                                             <line x1="21" y1="21" x2="16.65"
                                                                 y2="16.65"></line>
                                                         </svg>
+                                                    </button>
                                                     </div>
                                                 </div>
 
-                                                <input type="text" class="form-control form-control-lg ps-0"
+                                                <input type="text" name="name" class="form-control form-control-lg ps-0"
                                                     placeholder="Search messages or users"
                                                     aria-label="Search for messages or users...">
                                             </div>
@@ -723,10 +727,12 @@
 
                                 <!-- Search -->
                                 <div class="mb-6">
-                                    <form action="#">
+                                    <form action="{{ route('search') }}" method="get" id="search">
+
                                         <div class="input-group">
                                             <div class="input-group-text">
                                                 <div class="icon icon-lg">
+                                                    {{-- <button type="submit"> --}}
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                         height="24" viewBox="0 0 24 24" fill="none"
                                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -736,12 +742,13 @@
                                                         <line x1="21" y1="21" x2="16.65"
                                                             y2="16.65"></line>
                                                     </svg>
+                                                {{-- </button> --}}
                                                 </div>
                                             </div>
 
-                                            <input type="text" class="form-control form-control-lg ps-0"
+                                            <textarea type="text"  id="search-input" name="name" class="form-control form-control-lg ps-0"
                                                 placeholder="Search messages or users"
-                                                aria-label="Search for messages or users...">
+                                                aria-label="Search for messages or users..."></textarea>
                                         </div>
                                     </form>
 
@@ -770,8 +777,8 @@
                                 </div>
 
                                 <!-- List -->
-                                <div class="card-list">
-                                    @php
+                                <div class="card-list" id="friends-body">
+                                    {{-- @php
                                         $last_letter = '';
                                     @endphp
                                     @foreach ($friends as $friend)
@@ -827,7 +834,7 @@
                                                             </a>
 
                                                             <ul class="dropdown-menu">
-                                                                <li><a class="dropdown-item" href="#">New
+                                                                <li><a class="dropdown-item" id="new-conversation" href="">New
                                                                         message</a></li>
                                                                 <li><a class="dropdown-item" href="#">Edit
                                                                         contact</a>
@@ -847,7 +854,7 @@
 
                                             </div>
                                         </div>
-                                    @endforeach
+                                    @endforeach --}}
                                 </div>
 
                             </div>
@@ -2232,18 +2239,6 @@
                     <div class="chat-header border-bottom py-4 py-lg-7">
                         <div class="row align-items-center">
 
-                            <!-- Mobile: close -->
-                            <div class="col-2 d-xl-none">
-                                <a class="icon icon-lg text-muted" href="#" data-toggle-chat="">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                        class="feather feather-chevron-left">
-                                        <polyline points="15 18 9 12 15 6"></polyline>
-                                    </svg>
-                                </a>
-                            </div>
-                            <!-- Mobile: close -->
 
                             <!-- Content -->
                             <div class="col-8 col-xl-12">
@@ -2266,109 +2261,12 @@
                                     </div>
                                     <!-- Title -->
 
-                                    <!-- Toolbar -->
-                                    <div class="col-xl-6 d-none d-xl-block">
-                                        <div class="row align-items-center justify-content-end gx-6">
-                                            <div class="col-auto">
-                                                <a href="#" class="icon icon-lg text-muted"
-                                                    data-bs-toggle="offcanvas"
-                                                    data-bs-target="#offcanvas-more-group"
-                                                    aria-controls="offcanvas-more-group">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                        height="24" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="feather feather-more-horizontal">
-                                                        <circle cx="12" cy="12" r="1">
-                                                        </circle>
-                                                        <circle cx="19" cy="12" r="1">
-                                                        </circle>
-                                                        <circle cx="5" cy="12" r="1">
-                                                        </circle>
-                                                    </svg>
-                                                </a>
-                                            </div>
 
-                                            <div class="col-auto">
-                                                <div class="avatar-group">
-                                                    <a href="#" class="avatar avatar-sm"
-                                                        data-bs-toggle="modal" data-bs-target="#modal-user-profile">
-                                                        <img class="avatar-img" src="assets/img/avatars/1.jpg"
-                                                            alt="#">
-                                                    </a>
-
-                                                    <a href="#" class="avatar avatar-sm"
-                                                        data-bs-toggle="modal" data-bs-target="#modal-user-profile">
-                                                        <img class="avatar-img" src="assets/img/avatars/11.jpg"
-                                                            alt="#">
-                                                    </a>
-
-                                                    <a href="#" class="avatar avatar-sm"
-                                                        data-bs-toggle="modal" data-bs-target="#modal-user-profile">
-                                                        <img class="avatar-img" src="assets/img/avatars/7.jpg"
-                                                            alt="#">
-                                                    </a>
-
-                                                    <a href="#" class="avatar avatar-sm"
-                                                        data-bs-toggle="offcanvas"
-                                                        data-bs-target="#offcanvas-add-members"
-                                                        aria-controls="offcanvas-add-members">
-                                                        <span class="avatar-text" data-bs-toggle="tooltip"
-                                                            data-bs-placement="bottom"
-                                                            title="<strong>Add People</strong><p>Invite friends to group</p>">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                                height="24" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2"
-                                                                stroke-linecap="round" stroke-linejoin="round"
-                                                                class="feather feather-plus">
-                                                                <line x1="12" y1="5" x2="12"
-                                                                    y2="19"></line>
-                                                                <line x1="5" y1="12" x2="19"
-                                                                    y2="12"></line>
-                                                            </svg>
-                                                        </span>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Toolbar -->
                                 </div>
                             </div>
                             <!-- Content -->
 
-                            <!-- Mobile: more -->
-                            <div class="col-2 d-xl-none text-end">
-                                <div class="dropdown">
-                                    <a class="text-muted" href="#" role="button"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <div class="icon icon-lg">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                class="feather feather-more-vertical">
-                                                <circle cx="12" cy="12" r="1"></circle>
-                                                <circle cx="12" cy="5" r="1"></circle>
-                                                <circle cx="12" cy="19" r="1"></circle>
-                                            </svg>
-                                        </div>
-                                    </a>
 
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="offcanvas"
-                                                data-bs-target="#offcanvas-add-members"
-                                                aria-controls="offcanvas-add-members">Add members</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="offcanvas"
-                                                data-bs-target="#offcanvas-more-group"
-                                                aria-controls="offcanvas-more-group">More</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!-- Mobile: more -->
 
                         </div>
                     </div>
@@ -4817,17 +4715,20 @@
     </div>
 
     <!-- Scripts -->
+<script>
+        const userId = {{ auth()->id() }}
+</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="{{ asset('assets/js/vendor.js') }}"></script>
     <script src="{{ asset('assets/js/template.js') }}"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> --}}
     <script src="{{ asset('assets/js/jquery.3.4.1.js') }}"></script>
     <script src="{{ asset('assets/js/moment.js') }}"></script>
-    <script src="{{ asset('assets/js/messenger.js') }}"></script>
+
     <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
     <script type="module">
         // Enable pusher logging - don't include this in production
-        const userId = {{ auth()->id() }}
+
 
         Pusher.logToConsole = true;
 
@@ -4868,7 +4769,7 @@
         });
     </script>
 
-
+<script src="{{ asset('assets/js/messenger.js') }}"></script>
 
 
 </body>

@@ -62,6 +62,6 @@ class User extends Authenticatable
   }
 
   public function getAvatarUrlAttribute(){
-    return "https://ui-avatars.com/api/?background=random/?name=".$this->name;
+    return "https://ui-avatars.com/api/?name=".$this->name;
   }
 }

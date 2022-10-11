@@ -19,21 +19,36 @@ class MessagesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id)
+    public function index($id = '')
     {
         $user = Auth::user();
        $conversation = $user->conversations()->with(['participients'=>function($builder) use($user){
         return $builder->where('user_id','!=',$user->id);
        }])->where('id',$id)->first();
-    
+       $countConversation = $user->conversations()->count();
+       $messages = [];
+       if($conversation){
+        $messages = $conversation->messages()->with('user')->paginate();
+
+        foreach($messages as $msg){
+            $msg->update(['read_at'=>now()]);
+            DB::table('recipients')->where('message_id',$msg->id)->update(['read_at'=>now()]);
+
+        }
+
+
+       }
+
        return [
         'conversation'=>$conversation,
-        'messages'=>$conversation->messages()->with('user')->paginate(),
+        'messages'=>$messages,
+        'countConversation'=>$countConversation
         ];
-        
 
-      
+
     }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -61,57 +76,60 @@ class MessagesController extends Controller
     //    $user = User::find(1);
     $user = Auth::user();
        $conversation_id = $request->post('conversation_id');
+
        $user_id = $request->post('user_id');
 
        DB::beginTransaction();
        try{
-        if($conversation_id){
-            $conversation = $user->conversations()->findOrFail($conversation_id);
-        }else{
-
-            $conversation = Conversation::where('type','peer')
-                ->whereHas('participients',function($builder) use($user_id,$user){
-                $builder->join('participients as participients2','participients2.conversation_id','=','participients.conversation_id')
-               ->where('participients.user_id','=',$user_id)
-               ->where('participients2.user_id','=',$user->id);
-            })->first();
-
-            if(!$conversation){
-                $conversation = Conversation::create([
-                    'user_id'=>$user->id,
-                     'type'=>'peer',
-
-                ]);
 
 
 
-                $conversation->participients()->attach([
-                    $user->id=>['joined_at'=>now()],
-                    $user_id=>['joined_at'=>now()]
-                ]);
-            }
-        }
-        $message = $conversation->messages()->create([
+                if($conversation_id){
+                    $conversation = $user->conversations()->findOrFail($conversation_id);
+                }else{
+                    $conversation = Conversation::where('type','peer')
+                    ->whereHas('participients',function($builder) use($user_id,$user){
+                    $builder->join('participients as participients2','participients2.conversation_id','=','participients.conversation_id')
+                   ->where('participients.user_id','=',$user_id)
+                   ->where('participients2.user_id','=',$user->id);
+                })->first();
+
+                }
+
+
+                if(!$conversation){
+                    $conversation = Conversation::create([
+                        'user_id'=>$user->id,
+                        'type'=>'peer',
+                    ]);
+                    $conversation->participients()->attach([
+                        $user->id=>['joined_at'=>now()],
+                        $user_id=>['joined_at'=>now()]
+                    ]);
+                }
+
+
+
+           $message = $conversation->messages()->create([
             'user_id'=>$user->id,
-            'body'=>$request->post('message')
+            'body'=>$request->message
            ]);
+           $conversation->update(['last_message_id'=>$message->id]);
+           DB::statement('INSERT INTO recipients (user_id,message_id)
+           SELECT user_id, ? FROM participients
+           WHERE conversation_id = ?',[$message->id,$conversation->id]);
 
-        $conversation->update(['last_message_id'=>$message->id]);
-     
-      DB::statement('INSERT INTO recipients (user_id,message_id)
-        SELECT user_id, ? FROM participients
-        WHERE conversation_id = ?',[$message->id,$conversation->id]);
-
-        //   return $message;
         DB::commit();
-    
+
         broadcast(new MessageCreated($message));
-       
+
        }catch(Throwable $e){
         DB::rollBcak();
         throw $e;
        }
-       return $message->load('user');
+       return $message->load(['user','recipients'=>function($builder) use($user){
+        $builder->where('user_id','!=',$user->id)->whereNull('read_at')->count();
+       }]);
     }
 
     /**
@@ -134,7 +152,15 @@ class MessagesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        DB::beginTransaction();
+        try{
+           $dd = auth()->user()->conversations()->where('id',$id)->messages()->recipients()->update(['read_at'=>now()]);
+         DB::commit();
+         }catch(Throwable $e){
+        DB::rollBcak();
+        throw $e;
+       }
+       return $dd;
     }
 
     /**

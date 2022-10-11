@@ -22,17 +22,22 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function(){
     Route::post('message',[App\Http\Controllers\MessagesController::class,'store'])->name('api.message.store');
     Route::delete('message/{id}',[App\Http\Controllers\MessagesController::class,'destroy']);
+    Route::delete('message/update/{id}',[App\Http\Controllers\MessagesController::class,'update']);
     Route::get('convrsation/{conversation}',[App\Http\Controllers\ConversationsController::class,'show']);
     Route::post('conversation/{conversation}/participient',[App\Http\Controllers\ConversationsController::class,'addParticients']);
     Route::delete('participient/{conversation}',[App\Http\Controllers\ConversationsController::class,'removeParticients']);
     Route::get('convrsations',[App\Http\Controllers\ConversationsController::class,'index']);
-    Route::get('/convrsations/{id}/messages', [App\Http\Controllers\MessagesController::class,'index']);
+    Route::get('/convrsations/messages/{id?}', [App\Http\Controllers\MessagesController::class,'index']);
+    Route::get('/friends',[App\Http\Controllers\FriendsController::class,'index'])->name('search');
+
+    // Route::post('/friends/search',[App\Http\Controllers\FriendsController::class,'search'])->name('search');
+
 });
 Route::post('/login',function(){
     request()->validate([
         'email' => 'required|email',
         'password' => 'required',
-   
+
      ]);
 
      $user = User::where('email', request()->email)->first();
@@ -42,6 +47,6 @@ Route::post('/login',function(){
      }
 
      return $user->createToken(request()->password)->plainTextToken;
-  
+
 });
 
