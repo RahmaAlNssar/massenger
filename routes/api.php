@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('convrsations',[App\Http\Controllers\ConversationsController::class,'index']);
     Route::get('/convrsations/messages/{id?}', [App\Http\Controllers\MessagesController::class,'index']);
     Route::get('/friends',[App\Http\Controllers\FriendsController::class,'index'])->name('search');
+    Route::post('update/read_at/{id}',[App\Http\Controllers\MessagesController::class,'updateRead']);
 
     // Route::post('/friends/search',[App\Http\Controllers\FriendsController::class,'search'])->name('search');
 

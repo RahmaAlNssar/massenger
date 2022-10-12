@@ -2231,7 +2231,7 @@
         <!-- Sidebar -->
 
         <!-- Chat -->
-        <main class="main is-visible" data-dropzone-area="">
+        <main class="main is-visible" data-dropzone-area="" id="chat-body-main" style="display:none;">
             <div class="container h-100">
 
                 <div class="d-flex flex-column h-100 position-relative">
@@ -2248,14 +2248,19 @@
                                         <div class="row align-items-center gx-5">
                                             <div class="col-auto">
                                                 <div class="avatar d-none d-xl-inline-block">
+
                                                     <img class="avatar-img" id="chat-avatar"
-                                                        src="assets/img/avatars/bootstrap.svg" alt="">
+                                                        src="" alt="">
                                                 </div>
                                             </div>
 
-                                            {{-- start typing --}}
-                                            @include('partials.typing')
-                                            {{-- end start --}}
+                                            <div class="col overflow-hidden">
+
+                                            <h5 class="text-truncate" id="chat-name"></h5>
+
+                                            <p class="text-truncate" id="typing"><span
+                                                    class="typing-dots">.</span></p>
+                                        </div>
 
                                         </div>
                                     </div>
@@ -2275,15 +2280,8 @@
                     <!-- Chat: Content -->
                     <div class="chat-body hide-scrollbar flex-1 h-100">
                         <div class="chat-body-inner">
-                            <div class="py-6 py-lg-12" id="chat-body">
+                            <div class="py-6 py-lg-12" id="chat-body-new">
 
-
-
-
-                                <!-- Divider -->
-                                <div class="message-divider">
-                                    <small class="text-muted">Monday, Sep 16</small>
-                                </div>
 
 
 
@@ -2294,23 +2292,17 @@
                     <!-- Chat: Content -->
 
                     <!-- Chat: Footer -->
-                    <div class="chat-footer pb-3 pb-lg-7 position-absolute bottom-0 start-0">
+                    <div class="chat-footer pb-3 pb-lg-7 position-absolute bottom-0 start-0" id="chat-footer">
                         <!-- Chat: Files -->
                         <div class="dz-preview bg-dark" id="dz-preview-row" data-horizontal-scroll="">
                         </div>
-                        <!-- Chat: Files -->
+                            @include('partials.chats-from')
 
-                        <!-- Chat: Form -->
-
-
-                        @include('partials.chats-from')
-
-                        <!-- Chat: Form -->
                     </div>
-                    <!-- Chat: Footer -->
+
                 </div>
 
-            </div>
+                </div>
         </main>
         <!-- Chat -->
 

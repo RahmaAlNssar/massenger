@@ -8,9 +8,9 @@
          </div>
 
          <div class="col">
-            @if(request()->conversation_id)
-             <input type="hidden" name="conversation_id" value="">
-             @endif
+            {{-- @if(request()->conversation_id) --}}
+             <input type="hidden" name="conversation_id" value=""  id="chat-conv-id">
+             {{-- @endif --}}
              <input type="hidden" name="user_id" value="">
 
              <div class="input-group">
