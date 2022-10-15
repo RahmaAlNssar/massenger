@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Message;
 use App\Models\Recipient;
 use App\Models\Conversation;
 use App\Models\Participient;
@@ -28,17 +29,20 @@ class MessagesController extends Controller
        }])->where('id',$id)->first();
        $countConversation = $user->conversations()->count();
        $messages = [];
-
+       $messageCount = '';
        if($conversation){
-
         $messages = $conversation->messages()->with('user')->paginate();
+        $message = Message::where('id',$conversation->last_message_id)->whereHas("recipients",function($builder) use($conversation){
+            $builder->where("user_id","!=",$conversation->user_id);
+        })->first();
+       // $message->update(['read_at'=>now()]);
+        $message->recipients()->where('user_id',auth()->id())->update(['read_at'=>now()]);
+        // foreach($messages as $msg){
 
-        foreach($messages as $msg){
+        //     $msg->update(['read_at'=>now()]);
+        //     DB::table('recipients')->where('message_id',$msg->id)->update(['read_at'=>now()]);
 
-            $msg->update(['read_at'=>now()]);
-            DB::table('recipients')->where('message_id',$msg->id)->update(['read_at'=>now()]);
-
-        }
+        // }
 
 
        }
@@ -46,12 +50,32 @@ class MessagesController extends Controller
        return [
         'conversation'=>$conversation,
         'messages'=>$messages,
+        'messageCount'=>$messageCount,
         'countConversation'=>$countConversation
         ];
 
 
     }
 
+    public function updateRead($id){
+
+      $recipient =  Recipient::where("user_id",auth()->id())->whereNull("read_at")->whereHas("message",function($builder) use($id){
+            $builder->where("conversation_id",$id);
+        })->update(["read_at"=>now()]);
+
+
+      //$recipient->message()->update(["read_at"=>now()]);
+        // if($conversation){
+        //    $messages =  $conversation->messages;
+        //    foreach($messages as $msg){
+
+        //     $msg->update(['read_at'=>now()]);
+        //     DB::table('recipients')->where('message_id',$msg->id)->update(['read_at'=>now()]);
+
+        // }
+        // }
+        return "success";
+    }
 
 
     /**
@@ -134,6 +158,7 @@ class MessagesController extends Controller
        return $message->load(['user','recipients'=>function($builder) use($user){
         $builder->where('user_id','!=',$user->id)->whereNull('read_at')->count();
        }]);
+
     }
 
     /**
@@ -156,15 +181,15 @@ class MessagesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        DB::beginTransaction();
-        try{
-           $dd = auth()->user()->conversations()->where('id',$id)->messages()->recipients()->update(['read_at'=>now()]);
-         DB::commit();
-         }catch(Throwable $e){
-        DB::rollBcak();
-        throw $e;
-       }
-       return $dd;
+    //     DB::beginTransaction();
+    //     try{
+    //        $dd = auth()->user()->conversations()->where('id',$id)->messages()->recipients()->update(['read_at'=>now()]);
+    //      DB::commit();
+    //      }catch(Throwable $e){
+    //     DB::rollBcak();
+    //     throw $e;
+    //    }
+    //    return $dd;
     }
 
     /**
@@ -181,29 +206,5 @@ class MessagesController extends Controller
         ])->delete();
     }
 
-    public function updateRead($id){
 
-            $user = Auth::user();
-           $conversation = $user->conversations()->with(['participients'=>function($builder) use($user){
-            return $builder->where('user_id','!=',$user->id);
-           }])->where('id',$id)->first();
-
-           if($conversation){
-
-            $messages = $conversation->messages()->with('user')->paginate();
-
-            foreach($messages as $msg){
-
-                $msg->update(['read_at'=>now()]);
-                DB::table('recipients')->where('message_id',$msg->id)->update(['read_at'=>now()]);
-
-            }
-
-           }
-
-
-           return ['msg'=>"success"];
-
-
-    }
 }

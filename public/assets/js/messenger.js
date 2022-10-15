@@ -3,20 +3,22 @@ $(".chat-form").on("submit", function (e) {
     let msg = $(this).find("textarea").val();
 
     $.post($(this).attr("action"), $(this).serialize(), function (response) {
+
+
         let chat_id = response.conversation_id;
         $(`#counter_${chat_id}`).html();
+
         addMessage(response, "message-out");
-        // $.post(`api/update/read_at/${chat_id}`, function (response) {
-        //     console.log(response.msg);
-        // });
+
+
+
     });
 
     $(this).find("textarea").val("");
 });
 
 
-const addMessage = function(msg,c=""){
-
+const addMessage = function (msg, c = "") {
     $("#chat-body-new").append(` <div class="message
     ${c}
     ">
@@ -28,12 +30,14 @@ const addMessage = function(msg,c=""){
        <div class="message-inner">
            <div class="message-body">
                <div class="message-content">
+
                     <div class="message-text">
 
                         <p>${msg.body}</p>
                     </div>
-                       <input type="hidden" name="conversation_id" value="${msg.conversation_id
-}">
+                       <input type="hidden" name="conversation_id" value="${
+                           msg.conversation_id
+                       }">
                     <!-- Dropdown -->
                     <div class="message-action">
                         <div class="dropdown">
@@ -79,8 +83,8 @@ const addMessage = function(msg,c=""){
 
             <div class="message-footer">
                 <span class="extra-small text-muted">${moment(
-msg.created_at
-).fromNow()}</span>
+                    msg.created_at
+                ).fromNow()}</span>
            </div>
        </div>
    </div>
@@ -89,11 +93,10 @@ msg.created_at
    <!-- Divider -->
    <div class="message-divider">
        <small class="text-muted">${moment(msg.created_at).format(
-"MMM Do YY"
-)}</small>
+           "MMM Do YY"
+       )}</small>
    </div>`);
-}
-
+};
 
 // const addMessage = function (msg, c = "") {
 
@@ -167,19 +170,21 @@ msg.created_at
 
 const getConversation = function () {
     $.get("/api/convrsations", function (respoonse) {
+
         for (i in respoonse.conversations.data) {
-            conversation(respoonse.conversations.data[i]);
+            conversation(respoonse.conversations.data[i],respoonse.message);
 
             $("#tab-content-chats").text(respoonse.total);
         }
     });
 };
 
-const conversation = function (chat) {
-
-    $("#card-list").append(` <a href="${chat.id}"  data-messages="${chat.id
-        }" data-name="${chat.participients[0].name}" data-user_id="${chat.participients[0].user_id
-        }" class="card border-0 text-reset" id="chat-sidebar">
+const conversation = function (chat,message) {
+    $("#card-list").append(` <a href="${chat.id}"  data-messages="${
+        chat.id
+    }" data-name="${chat.participients[0].name}" data-user_id="${
+        chat.participients[0].user_id
+    }" class="card border-0 text-reset" id="chat-sidebar">
     <div class="card-body">
         <div class="row gx-5">
             <div class="col-auto">
@@ -195,8 +200,8 @@ const conversation = function (chat) {
                     <h5 class="me-auto mb-0">${chat.participients[0].name}</h5>
 
                     <span class="text-muted extra-small ms-2"> ${moment(
-            chat.last_message.created_at
-        ).fromNow()}</span>
+                        chat.last_message.created_at
+                    ).fromNow()}</span>
                 </div>
 
                 <div class="d-flex align-items-center" >
@@ -204,7 +209,9 @@ const conversation = function (chat) {
                         ${chat.last_message.body}
                     </div>
                     <div class="badge badge-circle bg-primary">
-                    <span id="counter_${chat.id}">${chat.messages.length}</span>
+                    <span id="counter_${chat.id}">${message}
+
+                    </span>
                 </div>
                 </div>
             </div>
@@ -217,13 +224,17 @@ $("#card-list").on("click", "[data-messages]", function (e) {
     e.preventDefault();
     const element = document.getElementById("chat-body-main");
     element.style.display = "block";
-    let id = $(this).attr("data-messages");
+
+    var id = $(this).attr("data-messages");
+
     var read = $("#counter_" + id);
 
     $("#chat-body-new").empty();
 
     $.get(`/api/convrsations/messages/${id}`, function (response) {
+
         read.html("0");
+
         $("#chat-name").text(response.conversation.participients[0].name);
 
         $("input[name=user_id]").val(response.conversation.participients[0].id);
@@ -234,21 +245,15 @@ $("#card-list").on("click", "[data-messages]", function (e) {
         );
 
         for (i in response.messages.data) {
-            let c =
+            var c =
                 response.messages.data[i].user_id == userId
                     ? "message-out"
                     : "";
-                    addMessage(response.messages.data[i], c);
 
-            // $("#chat-name").text(response.messages.data[i].user.name);
-            //     $("#chat-avatar").attr(
-            //         "src",
-            //         response.messages.data[i].user.avatar_url
-            //     );
-
-            //      $("#conversation_id").val(response.messages.data[i].conversation_id);
-            // $("#user_id").val(response.messages.data[i].user.id);
+            addMessage(response.messages.data[i], c);
         }
+
+
     });
 });
 
@@ -352,7 +357,6 @@ $("#friends-body").on("click", "[data-messages]", function (e) {
     $("input[name=conversation_id]").val(id);
 
     $.get(`/api/convrsations/messages/${id}`, function (response) {
-
         if (response.conversation == null) {
             $("#chat-conv-id").remove();
             $("#chat-name").text(name);
@@ -378,10 +382,10 @@ $("#friends-body").on("click", "[data-messages]", function (e) {
                     ? "message-out"
                     : "";
             addMessage(response.messages.data[i], c);
+
             // $("#chat-name").text(response.data[i].participients[0].name);
         }
     });
 });
 
 // get count chats
-

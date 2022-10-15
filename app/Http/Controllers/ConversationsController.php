@@ -14,16 +14,26 @@ class ConversationsController extends Controller
         $user = Auth::user();
      $conversations =   $user->conversations()->with(['lastMessage','participients'=>function($builder) use($user){
         $builder->where('id','!=',$user->id);
-    },'messages'=>function($builder) use($user){
-        $builder->whereNull('read_at')->where('user_id','!=',$user->id);
-    }])
+    }
+    // ,'messages'=>function($builder) use($user){
+    //     $builder->whereNull('read_at')->where('user_id','!=',$user->id);
+    // }
+    ])
 
-    // ->withCount(['recipients as new_messages'=>function($bulider){
-    //     $builder->where('recipients.user_id',$user->id)->whereNull('read_at');
 
-    // }])
     ->paginate();
-    return ['conversations'=>$conversations];
+    $message = 0;
+    foreach($conversations as $conversation){
+        $conversation_message = $conversation->messages()->where("user_id","!=",$user->id)->get();
+        foreach($conversation_message as $message){
+           $message = $message->whereHas("recipients",function($builder) use($user){
+                $builder->whereNull("read_at")->where("user_id","!=",$user->id);
+            })->count();
+
+        }
+    }
+
+    return ['conversations'=>$conversations,'message'=>$message];
     }
 
     public function show(Conversation $conversation){

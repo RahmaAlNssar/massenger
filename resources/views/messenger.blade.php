@@ -4733,6 +4733,15 @@
         channel.bind('new-message', function(data) {
 
             addMessage(data.message);
+                jQuery.ajax({
+                url: `api/message/update/${data.message.conversation_id}`,
+                method: "post",
+                data: { _token: $('meta[name="csrf-token"]').attr("content") },
+                datatype: "json",
+                success: function (result) {
+                    console.log(result);
+                },
+                 });
         });
 
 
